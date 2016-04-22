@@ -6,10 +6,11 @@ class Hunter(object):
         self.__nights = None
 
     def interesting_events(self):
-        for night_index in irange(2, len(self._nights())):
-            acceleration = self.magnitude_acceleration(night_index)
-            if acceleration > self.acceleration_threshhold:
-                print self.summary(night_index)
+        print len(self._nights())
+        # for night_index in xrange(2, len(self._nights())):
+        #     acceleration = self.magnitude_acceleration(night_index)
+        #     if acceleration > self.acceleration_threshhold:
+        #         print self.summary(night_index)
 
     def _nights(self):
         if not self.__nights:
@@ -31,6 +32,6 @@ class Hunter(object):
             last_observation = observation
 
 if __name__ == '__main__':
-    raw_data = dat_file_reader.DatFileReader('data/KB160053.dat').observations()
+    raw_data = dat_file_reader.DatFileReader('data/shanensemail/KB160053.dat').observations()
     h = Hunter(raw_data=raw_data)
     h.interesting_events()
