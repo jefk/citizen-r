@@ -6,7 +6,7 @@ class Hunter(object):
         self.__nights = None
 
     def interesting_events(self):
-        print len(self._nights())
+        print(len(self._nights()))
         # for night_index in xrange(2, len(self._nights())):
         #     acceleration = self.magnitude_acceleration(night_index)
         #     if acceleration > self.acceleration_threshhold:
