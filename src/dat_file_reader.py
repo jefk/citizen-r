@@ -17,4 +17,5 @@ class DatFileReader:
             }
 
     def _valid_line(self, line):
-        return line.split()[0] != '#'
+        spline = line.strip().split()
+        return spline and spline[0] != '#'

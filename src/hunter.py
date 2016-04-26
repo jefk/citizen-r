@@ -32,6 +32,6 @@ class Hunter(object):
             last_observation = observation
 
 if __name__ == '__main__':
-    raw_data = dat_file_reader.DatFileReader('data/shanensemail/KB160053.dat').observations()
+    raw_data = dat_file_reader.DatFileReader('../data/shanensemail/KB160053.dat').observations()
     h = Hunter(raw_data=raw_data)
     h.interesting_events()
