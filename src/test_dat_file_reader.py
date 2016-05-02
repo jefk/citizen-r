@@ -10,10 +10,10 @@ class DatFileReaderTestCase(unittest.TestCase):
     def test_observations(self):
         expected = [{'day': 1.0, 'magnitude': 12.0},{'day': 10.0, 'magnitude': 42.0}]
 
-        with mock.patch('__builtin__.open', self._mock_file(), create=True):
+        with mock.patch('dat_file_reader.open', self._mock_file(), create=True):
             observations = list(self.dat_file_reader.observations())
 
-        self.assertEquals(observations, expected)
+        self.assertEqual(observations, expected)
 
     def _mock_file(self):
         return_value = """
