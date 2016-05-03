@@ -14,5 +14,9 @@ class DatFileReaderTestCase(unittest.TestCase):
     def test_nights_count(self):
         self.assertEqual(len(self.hunter._nights()), 2)
 
+    def test_night_normalization(self):
+        normalized_magnitude = self.hunter._nights()[-1]['normalized_magnitude']
+        self.assertAlmostEqual(normalized_magnitude, 1.41421356237)
+
     def test_interesting_events(self):
         self.assertEqual(len(self.hunter.interesting_events()), 0)

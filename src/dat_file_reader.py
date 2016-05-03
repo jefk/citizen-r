@@ -3,11 +3,11 @@ class DatFileReader:
         self.path = path
 
     def observations(self):
-        return (
+        return [
             self._line_data(line)
             for line in open(self.path)
             if self._valid_line(line)
-            )
+            ]
 
     def _line_data(self, line):
         spline = line.strip().split()

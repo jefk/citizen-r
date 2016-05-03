@@ -1,3 +1,6 @@
+import itertools
+import numpy
+
 import dat_file_reader
 
 class Hunter(object):
@@ -7,16 +10,17 @@ class Hunter(object):
         self.__nights = None
 
     def interesting_events(self):
-        return [
-            self._nights()[night_index]
-            for night_index in range(3, len(self._nights()))
-            if self._light_curve_acceleration(night_index) > self.acceleration_threshhold]
+        return []
+        # return [
+        #     self._nights()[night_index]
+        #     for night_index in range(3, len(self._nights()))
+        #     if self._light_curve_acceleration(night_index) > self.acceleration_threshhold]
 
-    def _light_curve_acceleration(self, night_index):
-        last_last, last, this = nights[night_index-3:night_index]['normalized_magnitude']
-        this_change = this - last
-        last_change = last - last_last
-        return this_change - last_change
+    def summarize(self):
+        for i, night in enumerate(self._nights()):
+            stuffs = [i, night['count'], night['normalized_magnitude']]
+            print(stuffs)
+            print('\t'.join(stuffs))
 
     def _nights(self):
         if not self.__nights:
@@ -25,19 +29,37 @@ class Hunter(object):
 
     def _set_nights(self):
         self.__nights = []
-        night = { 'observations': [], 'normalized_magnitude': 0 }
-        last_observation = { 'day': 0 }
+        self._set_stats()
+        night = { 'observations': [] }
+        last_observation = None
 
         for observation in self.raw_data:
-            # TODO: put this in a config file
-            if observation['day'] - last_observation['day'] > 9.0/24:
-                self.__nights.append(night)
+            # TODO: put chunk gap in a config file
+            if last_observation and observation['day'] - last_observation['day'] > 9.0/24:
+                self.__nights.append(self._normalize(night))
                 night = { 'observations': [] }
 
             night['observations'].append(observation)
             last_observation = observation
 
+        self.__nights.append(self._normalize(night))
+
+    def _normalize(self, night):
+        observations = night['observations']
+        night['count'] = len(observations)
+        night['normalized_magnitudes'] = [
+            (o['magnitude'] - self._magnitude_mean) / self._magnitude_standard_deviation
+            for o in observations ]
+        night['normalized_magnitude'] = numpy.mean(night['normalized_magnitudes'])
+        return night
+
+    def _set_stats(self):
+        all_magnitudes = [ o['magnitude'] for o in self.raw_data ]
+        self._magnitude_mean = numpy.mean(all_magnitudes)
+        self._magnitude_standard_deviation = numpy.std(all_magnitudes)
+
+
 if __name__ == '__main__':
     raw_data = dat_file_reader.DatFileReader('../data/shanensemail/KB160053.dat').observations()
     h = Hunter(raw_data=raw_data)
-    h.interesting_events()
+    h.summarize()
