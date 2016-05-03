@@ -1,10 +1,12 @@
+import os
 import itertools
 import numpy
 
 import dat_file_reader
 
 class Hunter(object):
-    def __init__(self, raw_data):
+    def __init__(self, raw_data, event_name='UNK'):
+        self.event_name = event_name
         self.raw_data = raw_data
         self.acceleration_threshhold = 1
         self.__nights = None
@@ -16,16 +18,32 @@ class Hunter(object):
         #     for night_index in range(3, len(self._nights()))
         #     if self._light_curve_acceleration(night_index) > self.acceleration_threshhold]
 
-    def summarize(self):
+    def print_summary_table(self):
         for i, night in enumerate(self._nights()):
-            magnitudes = [round(mag,1) for mag in night['normalized_magnitudes']]
-            stuffs = [i,
+            stuffs = [
+                self.event_name,
+                i,
+                self._is_interesting(i),
                 night['count'],
                 night['start'],
                 night['end'],
-                night['normalized_magnitude']]
-            print('\t'.join(str(stuff) for stuff in stuffs + magnitudes))
+                '{0:.2f}'.format(night['normalized_magnitude']),
+                ]
+            print('\t'.join(str(stuff) for stuff in stuffs))
 
+    def _is_interesting(self, night_index):
+        this_night_mag = self._nights()[night_index]['normalized_magnitude']
+        last_night_mag = self._nights()[night_index-1]['normalized_magnitude']
+        slope = this_night_mag - last_night_mag
+        # TODO put threshholds in config file
+        return (
+            self._nights()[night_index]['count'] > 4 and
+            this_night_mag < -3 and
+            last_night_mag < -1 and
+            slope < -1
+            )
+
+    # TODO: use a separate class for chunking
     def _nights(self):
         if not self.__nights:
             self._set_nights()
@@ -38,6 +56,9 @@ class Hunter(object):
         last_observation = None
 
         for observation in self.raw_data:
+            # TODO: put error limit config file
+            if observation['error'] > 0.5:
+                continue
             # TODO: put chunk gap in a config file
             if last_observation and observation['day'] - last_observation['day'] > 9.0/24:
                 self.__nights.append(self._normalize(night))
@@ -66,6 +87,8 @@ class Hunter(object):
 
 
 if __name__ == '__main__':
-    raw_data = dat_file_reader.DatFileReader('../data/shanensemail/KB160053.dat').observations()
-    h = Hunter(raw_data=raw_data)
-    h.summarize()
+    data_dir = '../data/shanensemail/'
+    for f in os.listdir(data_dir):
+        raw_data = dat_file_reader.DatFileReader(data_dir + f).observations()
+        h = Hunter(raw_data=raw_data, event_name=f)
+        h.print_summary_table()
