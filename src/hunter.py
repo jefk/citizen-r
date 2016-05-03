@@ -18,9 +18,13 @@ class Hunter(object):
 
     def summarize(self):
         for i, night in enumerate(self._nights()):
-            stuffs = [i, night['count'], night['normalized_magnitude']]
-            print(stuffs)
-            print('\t'.join(stuffs))
+            magnitudes = [round(mag,1) for mag in night['normalized_magnitudes']]
+            stuffs = [i,
+                night['count'],
+                night['start'],
+                night['end'],
+                night['normalized_magnitude']]
+            print('\t'.join(str(stuff) for stuff in stuffs + magnitudes))
 
     def _nights(self):
         if not self.__nights:
@@ -47,6 +51,8 @@ class Hunter(object):
     def _normalize(self, night):
         observations = night['observations']
         night['count'] = len(observations)
+        night['start'] = round(observations[0]['day'], 1)
+        night['end'] = round(observations[-1]['day'], 1)
         night['normalized_magnitudes'] = [
             (o['magnitude'] - self._magnitude_mean) / self._magnitude_standard_deviation
             for o in observations ]

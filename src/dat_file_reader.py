@@ -14,6 +14,7 @@ class DatFileReader:
         return {
             'day': float(spline[2]),
             'magnitude': float(spline[0]),
+            'error': float(spline[1]),
             }
 
     def _valid_line(self, line):

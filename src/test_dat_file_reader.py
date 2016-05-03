@@ -8,7 +8,10 @@ class DatFileReaderTestCase(unittest.TestCase):
         self.dat_file_reader = dat_file_reader.DatFileReader('notafile')
 
     def test_observations(self):
-        expected = [{'day': 1.0, 'magnitude': 12.0},{'day': 10.0, 'magnitude': 42.0}]
+        expected = [
+            {'day': 1.0, 'error': 11.0, 'magnitude': 12.0},
+            {'day': 10.0, 'error': 11.0, 'magnitude': 42.0},
+            ]
 
         with mock.patch('dat_file_reader.open', self._mock_file(), create=True):
             observations = list(self.dat_file_reader.observations())
